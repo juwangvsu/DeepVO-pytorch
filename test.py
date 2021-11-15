@@ -13,7 +13,8 @@ from helper import eulerAnglesToRotationMatrix
 
 if __name__ == '__main__':    
 
-	videos_to_test = ['04', '05', '07', '10', '09']
+	videos_to_test = ['04', '05']
+	#videos_to_test = ['04', '05', '07', '10', '09']
 
 	# Path
 	load_model_path = par.load_model_path   #choose the model you want to load
@@ -31,7 +32,12 @@ if __name__ == '__main__':
 	else:
 		M_deepvo.load_state_dict(torch.load(load_model_path, map_location={'cuda:0': 'cpu'}))
 	print('Load model from: ', load_model_path)
-
+	print('model layers: ', list(M_deepvo.modules()))
+	layerslist= list(M_deepvo.modules())
+	for i in range(len(layerslist)):
+		print(str(i) +'th layer: ', layerslist[i])
+	n_p = sum(x.numel() for x in M_deepvo.parameters())
+	print(f"Model Summary: {len(list(M_deepvo.modules()))} layers, {n_p} parameters")
 
 
 	# Data
