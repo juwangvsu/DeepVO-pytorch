@@ -2,6 +2,13 @@ repo:
 	hptitan Documents/DeepVO-python
 	juwangvsu github
 
+-----------12/20/21 prepare some pc2 and odom data  ----------------
+from turtlebot3 simulation bag file
+turtlebot3_imuodompt2_3/
+	.pcd  --- point cloud (binary)
+	.ply  --- ply format for point cloud (meshlab readable)
+	.yaml --- pose information corresponding to each ply
+
 -----------10/20/21 train and test work ----------------
 train:
 	python main.py
