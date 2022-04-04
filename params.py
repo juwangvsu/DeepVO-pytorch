@@ -38,7 +38,7 @@ class Parameters():
 		self.batch_norm = True
 		# Training
 		self.epochs = 250
-		self.batch_size = 16 
+		self.batch_size = 8 #16 default 
 		self.pin_mem = True
 		self.optim = {'opt': 'Adagrad', 'lr': 0.0005}
 					# Choice:
