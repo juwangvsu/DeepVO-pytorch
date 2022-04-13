@@ -19,7 +19,18 @@ def conv(batchNorm, in_planes, out_planes, kernel_size=3, stride=1, dropout=0):
             nn.LeakyReLU(0.1, inplace=True),
             nn.Dropout(dropout)#, inplace=True)
         )
-
+'''dataloader return item format:
+        t_x: b,seq,c,w,h (8,7,3,608, 184)
+        t_y: b,seq, labelsize (8,7,6)
+model.py DeepVO:
+        input shape (8,7,3,608, 184)
+        t_x image is stacked to become (8,6,6,608,184)
+        further change view to (8*6,6,608,184)
+        this is passed to CNN, result feature tensor ([48, 1024, 10, 3])
+        change view to ((8,6, 30720)
+        send to RNN
+        final result (batch_size 8, seq_len 8, 6)
+'''
 class DeepVO(nn.Module):
     def __init__(self, imsize1, imsize2, batchNorm=True):
         super(DeepVO,self).__init__()

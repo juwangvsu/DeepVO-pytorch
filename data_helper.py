@@ -198,7 +198,10 @@ class ImageSequenceDataset(Dataset):
     def __getitem__(self, index):
         raw_groundtruth = np.hsplit(self.groundtruth_arr[index], np.array([6]))	
         groundtruth_sequence = raw_groundtruth[0]
-        groundtruth_rotation = raw_groundtruth[1][0].reshape((3, 3)).T # opposite rotation of the first frame
+        # format: euler x, y, z, pos x, y, z. gtlable[0:5]
+
+        groundtruth_rotation = raw_groundtruth[1][0].reshape((3, 3)).T # opposite rotation of the first frame, gtlabel[6:14] is the rotation matrix
+
         groundtruth_sequence = torch.FloatTensor(groundtruth_sequence)
         # groundtruth_sequence[1:] = groundtruth_sequence[1:] - groundtruth_sequence[0:-1]  # get relative pose w.r.t. previois frame 
 
@@ -207,6 +210,7 @@ class ImageSequenceDataset(Dataset):
         # print('Item before transform: ' + str(index) + '   ' + str(groundtruth_sequence))
 
         # here we rotate the sequence relative to the first frame
+        # gt_seq[3:5] is position, [0:2] is euler angle
         for gt_seq in groundtruth_sequence[1:]:
             location = torch.FloatTensor(groundtruth_rotation.dot(gt_seq[3:].numpy()))
             gt_seq[3:] = location[:]
@@ -215,7 +219,8 @@ class ImageSequenceDataset(Dataset):
         # get relative pose w.r.t. previous frame
         groundtruth_sequence[2:] = groundtruth_sequence[2:] - groundtruth_sequence[1:-1]
 
-		# here we consider cases when rotation angles over Y axis go through PI -PI discontinuity
+		# here we consider cases when rotation angles over Y axis go through PI -PI discontinuity, gt_seq[0] is the euler angle at y-axis? it seems so, ploting the angle data shows the gt_seq[0] is magnitude higher than others. since the KITTI dataset vehicle orientation mainly alone gravity axis (yaw), so only one angle need to be used in the loss function during training.
+
         for gt_seq in groundtruth_sequence[1:]:
             gt_seq[0] = normalize_angle_delta(gt_seq[0])
 			
@@ -227,7 +232,9 @@ class ImageSequenceDataset(Dataset):
         image_sequence = []
         for img_path in image_path_sequence:
             img_as_img = Image.open(img_path)
+            # pixel rgb value is  [0,255]
             img_as_tensor = self.transformer(img_as_img)
+            # pixel rgb value is now [0,1]
             if self.minus_point_5:
                 img_as_tensor = img_as_tensor - 0.5  # from [0, 1] -> [-0.5, 0.5]
             img_as_tensor = self.normalizer(img_as_tensor)

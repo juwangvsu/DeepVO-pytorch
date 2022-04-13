@@ -2,6 +2,47 @@ repo:
 	hptitan Documents/DeepVO-python
 	juwangvsu github
 
+-----------4/12/22 main.py gt label-------------------------
+
+dataloader return item format:
+	t_x: b,seq,c,w,h (8,7,3,608, 184)
+	t_y: b,seq, labelsize (8,7,6)
+model.py DeepVO:
+	input shape (8,7,3,608, 184)
+	t_x image is stacked to become (8,6,6,608,184)
+	further change view to (8*6,6,608,184)
+	this is passed to CNN, result feature tensor ([48, 1024, 10, 3])
+	change view to ((8,6, 30720)
+	send to RNN
+	final result (batch_size 8, seq_len 8, 6)
+
+the model actually predict the relative pose between the two stacked frame. so
+this definetly will cause drift as trajectory of a long video will accumulate.
+without loop closure, no way to get a good result.
+	
+	
+-----------4/5/22 test.py gt label-------------------------
+output: results/*.txt
+	each line pose estimate for the video seq?
+		euler angle y,x,z, pos x, y, z
+
+label:  04.txt: each line 12 numbers, is the pose, representing 3x4 matrix.
+	the position is the last column (3x1). corresponding to the 3th, 7th,
+		11th number iin the txt file, the rest are 3x3 rot matrix.
+	
+	npy format: converted from .txt file
+		[0:15] for each pose
+		euler angle y,x,z, pos x, y, z, 3x3 rot matrix
+	gt[0:3] angle, [3:6] translation
+
+seq_len = 6,  overlap = 5
+Folder 04 finish in 0.0029706954956054688 sec
+len(answer):  271
+expect len:  271
+Predict use 31.668784141540527 sec
+Loss =  243.41754709869468
+
+
 -----------12/20/21 prepare some pc2 and odom data  ----------------
 from turtlebot3 simulation bag file
 turtlebot3_imuodompt2_3/
